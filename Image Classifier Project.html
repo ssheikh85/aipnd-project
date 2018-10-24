@@ -14019,6 +14019,7 @@ Network accuracy on test image set = 80 %
     <span class="n">top_5_probs</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">all_probs</span><span class="p">,</span> <span class="n">topk</span><span class="p">,</span> <span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="c1">#Invets class to index dictionary</span>
+    <span class="c1">#Coded from examples found during online search and from forums such as Stack Overflow</span>
     <span class="n">invert_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">value</span><span class="p">:</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">class_to_idx</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
     
     <span class="n">top_5_probs</span> <span class="o">=</span> <span class="n">top_5_probs</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
