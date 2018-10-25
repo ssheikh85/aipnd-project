@@ -82,6 +82,8 @@ def predict(options.save_dir, model, options.topk, options.gpu):
     top_5_out = []
     flower_names = []
 
+    print("Top {} highest probabilities and flower types".format(topk))
+
     for i in range(topk):
         idx_array.append(indices[0][i])
         classes.append(invert_dict[idx_array[i]])
@@ -89,7 +91,7 @@ def predict(options.save_dir, model, options.topk, options.gpu):
         flower_names.append(cat_to_name[i])
 
         print("{}".format(i+1),
-              "Probability {:.3f}.. ".format(top_5_ot[i]*100),
+              "Probability {:.3f}.. ".format(top_5_out[i]*100),
               "Flower Name: {:.3f}.. ".format(flower_names[i]))
                       
     

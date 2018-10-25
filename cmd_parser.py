@@ -26,7 +26,7 @@ def arg_parser():
     parser.add_argument('--arch', type=str, default='vgg', 
                         help='chosen pretrained model')
 
-    parser.add_argument('--gpu', type=boolean, default=True, 
+    parser.add_argument('--gpu', type=boolean, default=False, 
                         help='Enable use of CUDA based gpu')
 
     parser.add_argument('--learnrate', type=float, default=0.001,
