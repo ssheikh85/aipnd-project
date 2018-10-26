@@ -6,8 +6,6 @@ Author: Saeed Sheikh
 Date: Oct 26 2018'''
 
 import argparse
-import build_model
-import cmd_parser
 
 import torch
 from torch import nn
@@ -15,13 +13,17 @@ from torch import optim
 import torch.nn.functional as F
 from torchvision import datasets, transforms, models
 
+from build_model import build_network
+from cmd_parser import arg_parser
+
 def main():
 
     #Function calls, 1st call is to the arg_parser
     options = arg_parser()
 
     #Builds model by calling build model function
-    model = build_model(options.arch, options.hidden_units)
+    model = build_network(options.arch, options.hidden_units)
+
 
     #performs data augementation on datasets
     dataloader_train, dataloader_test, dataloader_valid = load_datasets(options.data_dir)
@@ -30,19 +32,17 @@ def main():
     device = torch.device("cuda:0" if (torch.cuda.is_available() and options.gpu) else "cpu")
 
     #sets criterion and optimizer for training
-    criterion, optimizer = set_criterion_optim(options.learnrate)
+    criterion, optimizer = set_criterion_optim(model, options.learnrate)
 
     #trains network
-    train_network(model, dataloader_train, dataload_valid, options.epochs, options.print_in, criterion, optimizer, device)
+    train_network(model, dataloader_train, dataloader_valid, options.epochs, options.print_in, criterion,       
+                  optimizer, device, options.gpu)
 
     #checks accuracy of network on test set, returns number correct, total, and percentage correct
-    check_accuracy(device, dataloader_test)
-
-    #Attaches class to index dictionary to the model
-    model.class_to_idx = dataloader_train.class_to_idx
+    check_accuracy(model, device, dataloader_test)
 
     #saves trained model as a checkpoint
-    save_checkpoint(model, options.epoch, model.class_to_idx, optimizer)
+    save_checkpoint(model, options.epochs, class_to_idx, optimizer)
 
 
 #Image Load and Transforms function
@@ -83,14 +83,14 @@ def load_datasets(data_dir):
     return dataloader_train, dataloader_test, dataloader_valid
 
 #Function to set criterion and optimizer
-def set_criterion_optim(options.learnrate):
+def set_criterion_optim(model, learn_rate):
     criterion = nn.NLLLoss()
-    optimizer = optim.Adam(model.classifier.parameters(), lr = options.learnrate)
+    optimizer = optim.Adam(model.classifier.parameters(), lr = learn_rate)
 
     return criterion, optimizer
 
 #Validation function, used to compute test accuracy during training
-def validation(model, dataloader_test, criterion, device, options.gpu):
+def validation(model, dataloader_valid, criterion, device, gpu):
     test_loss = 0
     accuracy = 0
     for images, labels in dataloader_valid:
@@ -100,7 +100,7 @@ def validation(model, dataloader_test, criterion, device, options.gpu):
 
         ps = torch.exp(output)
         equality = (labels.data == ps.max(dim=1)[1])
-        if torch.cuda.is_available() and options.gpu:
+        if torch.cuda.is_available() and gpu:
             dtype = torch.cuda.FloatTensor
         else:
             dtype = torch.FloatTensor
@@ -110,9 +110,9 @@ def validation(model, dataloader_test, criterion, device, options.gpu):
 
 
 #function to train network
-def train_network(model, dataloader_train, dataload_valid, options.epochs, options.print_in, criterion, optimizer, device):
-    epochs = options.epochs
-    print_every = options.print_in
+def train_network(model, dataloader_train, dataloader_valid, epochs_in, print_in, criterion, optimizer, device, gpu):
+    epochs = epochs_in
+    print_every = print_in
     steps = 0
     
     model.to(device)
@@ -141,7 +141,7 @@ def train_network(model, dataloader_train, dataload_valid, options.epochs, optio
                 model.eval()
                 
                 with torch.no_grad():
-                    test_loss, accuracy = validation(model, dataloader_valid, criterion, device)
+                    test_loss, accuracy = validation(model, dataloader_valid, criterion, device, gpu)
                 
                 print("Epoch: {}/{}.. ".format(e+1, epochs),
                       "Training Loss: {:.3f}.. ".format(running_loss/print_every),
@@ -153,7 +153,7 @@ def train_network(model, dataloader_train, dataload_valid, options.epochs, optio
                 model.train()
 
 #Function to check accuracy on test dataset
-def check_accuracy(device, dataloader_test):
+def check_accuracy(model, device, dataloader_test):
     correct = 0
     total = 0
     with torch.no_grad():
@@ -168,9 +168,10 @@ def check_accuracy(device, dataloader_test):
     print('Network accuracy on test image set = %d %%' % (100 * correct/total))
 
 #function to save checkpoint
-def save_checkpoint(model, options.epoch, model.class_to_idx, optimizer):
+def save_checkpoint(model, epochs, class_to_idx, optimizer, image_datasets_train):
+    model.class_to_idx = image_datasets_train.class_to_idx
     checkpoint = {'class_to_idx': image_datasets_train.class_to_idx,
-              'epochs' : 5,
+              'epochs' : epochs,
               'optimizer' : optimizer.state_dict(),
               'state_dict': model.classifier.state_dict()}
 

@@ -17,16 +17,16 @@ def arg_parser():
     # model architecture to be used, use of JSON file with flower names, enable gpu, hyperparameters for building and training model: such
     # as learnrate, epochs, hidden_units, and an option to print out topk probabilities for image prediction
     
-    parser.add_argument('--data_dir', type=str, default='flowers/', 
+    parser.add_argument('--data_dir', type=str, default='/home/workspace/aipnd-project/flowers/', 
                         help='path to folder with training, test and validation flower images')
 
-    parser.add_argument('--save_dir', type=str, default='home/',
+    parser.add_argument('--save_dir', type=str, default='/home/workspace/aipnd-project',
                         help='path to save location for checkpoints')
 
     parser.add_argument('--arch', type=str, default='vgg', 
                         help='chosen pretrained model')
 
-    parser.add_argument('--gpu', type=boolean, default=False, 
+    parser.add_argument('--gpu', type=bool, default=False, 
                         help='Enable use of CUDA based gpu')
 
     parser.add_argument('--learnrate', type=float, default=0.001,
