@@ -26,8 +26,13 @@ def main():
 
 
     #performs data augementation on datasets
-    dataloader_train, dataloader_test, dataloader_valid = load_datasets(options.data_dir)
+    image_datasets_train, image_datasets_test, image_datasets_valid = create_datasets(options.data_dir)                                                           
+    
+    dataloader_train, dataloader_test, dataloader_valid = load_datasets(image_datasets_train, image_datasets_test,                                                                              image_datasets_valid)
 
+    #assigns class_to_idx, class indexing for flower images as an attribute to the model
+    model.class_to_idx = image_datasets_train.class_to_idx
+    
     #sets device to gpu, if gpu option is selected and CUDA is available, else use the cpu
     device = torch.device("cuda:0" if (torch.cuda.is_available() and options.gpu) else "cpu")
 
@@ -42,11 +47,11 @@ def main():
     check_accuracy(model, device, dataloader_test)
 
     #saves trained model as a checkpoint
-    save_checkpoint(model, options.epochs, class_to_idx, optimizer)
+    save_checkpoint(model, options.epochs, optimizer)
 
 
 #Image Load and Transforms function
-def load_datasets(data_dir):
+def create_datasets(data_dir):
     train_dir = data_dir + '/train'
     valid_dir = data_dir + '/valid'
     test_dir = data_dir + '/test'
@@ -75,7 +80,10 @@ def load_datasets(data_dir):
     image_datasets_test = datasets.ImageFolder(test_dir, transform = data_transforms_test)
     image_datasets_valid = datasets.ImageFolder(valid_dir, transform = data_transforms_valid)
 
-    #Using the image datasets and the trainforms, defines the dataloaders
+    return image_datasets_train, image_datasets_test, image_datasets_valid
+
+def load_datasets(image_datasets_train, image_datasets_test, image_datasets_valid):
+    #Using the image datasets and the transforms, defines the dataloaders
     dataloader_train = torch.utils.data.DataLoader(image_datasets_train, batch_size = 64, shuffle = True)
     dataloader_test = torch.utils.data.DataLoader(image_datasets_test, batch_size = 64)
     dataloader_valid = torch.utils.data.DataLoader(image_datasets_valid, batch_size = 64)
@@ -168,9 +176,8 @@ def check_accuracy(model, device, dataloader_test):
     print('Network accuracy on test image set = %d %%' % (100 * correct/total))
 
 #function to save checkpoint
-def save_checkpoint(model, epochs, class_to_idx, optimizer, image_datasets_train):
-    model.class_to_idx = image_datasets_train.class_to_idx
-    checkpoint = {'class_to_idx': image_datasets_train.class_to_idx,
+def save_checkpoint(model, epochs, optimizer):
+    checkpoint = {'class_to_idx': model.class_to_idx,
               'epochs' : epochs,
               'optimizer' : optimizer.state_dict(),
               'state_dict': model.classifier.state_dict()}
