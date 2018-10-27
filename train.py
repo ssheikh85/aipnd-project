@@ -47,7 +47,7 @@ def main():
     check_accuracy(model, device, dataloader_test)
 
     #saves trained model as a checkpoint
-    save_checkpoint(model, options.epochs, optimizer)
+    save_checkpoint(model)
 
 
 #Image Load and Transforms function
@@ -176,11 +176,9 @@ def check_accuracy(model, device, dataloader_test):
     print('Network accuracy on test image set = %d %%' % (100 * correct/total))
 
 #function to save checkpoint
-def save_checkpoint(model, epochs, optimizer):
+def save_checkpoint(model):
     checkpoint = {'class_to_idx': model.class_to_idx,
-              'epochs' : epochs,
-              'optimizer' : optimizer.state_dict(),
-              'state_dict': model.classifier.state_dict()}
+              'state_dict': model.state_dict()}
 
     torch.save(checkpoint, 'checkpoint.pth')
 

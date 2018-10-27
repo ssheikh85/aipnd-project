@@ -22,6 +22,12 @@ def arg_parser():
 
     parser.add_argument('--save_dir', type=str, default='/home/workspace/aipnd-project',
                         help='path to save location for checkpoints')
+    
+    parser.add_argument('--checkpoint_file', type=str, default='/home/workspace/aipnd-project/checkpoint.pth',
+                        help='Image file for prediction')
+        
+    parser.add_argument('--image_file', type=str, default='/home/workspace/aipnd-project/predict_img.jpg',
+                        help='Image file for prediction')
 
     parser.add_argument('--arch', type=str, default='vgg', 
                         help='chosen pretrained model')
