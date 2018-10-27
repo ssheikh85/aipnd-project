@@ -98,7 +98,8 @@ def predict(img_filepath, model_out, topk_in, gpu, cat_names):
     count = 0
     for x, y in zip(top_5_out, flower_names):
         count = count + 1
-        print(str(count)+')', '{:>10.2f}'.format((x*100))+'%', '{:.>20}'.format('Flower Name:'), y)
+        #String formatting code adapted from code found on StackOverflow
+        print(str(count)+') Flower Name:', '{}'.format(y).rjust(18), 'Probability: {:>10.2f}'.format((x*100)).rjust(28)+'%')
         
     
 # Call to main function to run the program
